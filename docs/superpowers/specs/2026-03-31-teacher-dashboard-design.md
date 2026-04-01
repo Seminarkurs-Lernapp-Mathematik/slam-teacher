@@ -214,7 +214,7 @@ Actions per row: View detail, Reset password, Move to class, Remove.
 ### 7.5 Lernziele
 
 Form per class:
-- **Topic picker** — searchable tree: leitidee → thema → unterthema (populated from the existing topic structure in the backend)
+- **Topic picker** — searchable tree: leitidee → thema → unterthema (populated from `GET /api/teacher/class/:classId/analytics` — uses the `topics` array already returned; only shows topics students have actually practiced for the selected class)
 - **Prüfungsdatum** — date picker
 - **Speichern** calls `POST /api/teacher/class/:classId/goal` which writes to `classGoals/{classId}`
 
