@@ -10,7 +10,7 @@ export function LiveMonitor() {
   const setBeamerMode = useStore((s) => s.setBeamerMode)
 
   // Poll every 5 seconds
-  const { data: students = [], isLoading } = useStudents(selectedClassId, 5_000)
+  const { data: students = [], isFetching } = useStudents(selectedClassId, 5_000)
   const { data: classes = [] } = useClasses(selectedClassId ? [selectedClassId] : [])
   const classDoc = classes[0]
 
@@ -24,7 +24,7 @@ export function LiveMonitor() {
         <h1 className="text-xl font-semibold text-white flex-1">
           Live Monitor – {classDoc.name}
         </h1>
-        {isLoading && (
+        {isFetching && (
           <span className="text-xs text-slate-500 animate-pulse">Aktualisierung…</span>
         )}
         <AlertPill students={students} />

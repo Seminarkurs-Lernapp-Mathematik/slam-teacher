@@ -60,6 +60,7 @@ void (null as unknown as StudentSummary)
 void (null as unknown as ClassDoc)
 
 import { LiveMonitor } from './LiveMonitor'
+import * as storeModule from '../store'
 
 describe('LiveMonitor', () => {
   it('shows student names in normal mode', () => {
@@ -70,5 +71,19 @@ describe('LiveMonitor', () => {
   it('shows Beamer-Modus toggle button', () => {
     render(<LiveMonitor />)
     expect(screen.getByRole('button', { name: /beamer/i })).toBeInTheDocument()
+  })
+
+  it('hides real names and shows pseudonyms in beamer mode', () => {
+    const spy = vi.spyOn(storeModule, 'useStore').mockImplementation((selector: (s: object) => unknown) =>
+      selector({
+        selectedClassId: 'cls-1',
+        beamerMode: true,
+        setBeamerMode: vi.fn(),
+      })
+    )
+    render(<LiveMonitor />)
+    expect(screen.getByText('Schüler 1')).toBeInTheDocument()
+    expect(screen.queryByText('Anna Müller')).not.toBeInTheDocument()
+    spy.mockRestore()
   })
 })
