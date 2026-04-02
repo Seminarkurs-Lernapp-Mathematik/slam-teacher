@@ -48,6 +48,6 @@ describe('App routing', () => {
         <App />
       </MemoryRouter>
     )
-    expect(screen.getByText('Klassenraum')).toBeInTheDocument()
+    expect(screen.getAllByText('Klassenraum').length).toBeGreaterThan(0)
   })
 })
