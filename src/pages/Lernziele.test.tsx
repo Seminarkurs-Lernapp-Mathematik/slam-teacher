@@ -90,4 +90,11 @@ describe('Lernziele', () => {
     await userEvent.click(screen.getByRole('button', { name: /speichern/i }))
     expect(screen.getByText(/mindestens ein/i)).toBeInTheDocument()
   })
+
+  it('search filter hides non-matching topics', async () => {
+    render(<Lernziele />)
+    await userEvent.type(screen.getByPlaceholderText(/suchen/i), 'Kettenregel')
+    expect(screen.queryByText('Potenzregel')).not.toBeInTheDocument()
+    expect(screen.getByText('Kettenregel')).toBeInTheDocument()
+  })
 })

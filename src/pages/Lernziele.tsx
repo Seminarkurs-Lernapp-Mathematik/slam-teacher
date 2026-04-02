@@ -23,12 +23,10 @@ export function Lernziele() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const topics = analytics?.topics ?? []
-
   // Build tree: leitidee → thema → unterthema[]
   const tree = useMemo(() => {
     const result: Record<string, Record<string, TopicKey[]>> = {}
-    for (const t of topics) {
+    for (const t of analytics?.topics ?? []) {
       if (!result[t.leitidee]) result[t.leitidee] = {}
       if (!result[t.leitidee][t.thema]) result[t.leitidee][t.thema] = []
       result[t.leitidee][t.thema].push({
@@ -38,7 +36,7 @@ export function Lernziele() {
       })
     }
     return result
-  }, [topics])
+  }, [analytics])
 
   function isSelected(tk: TopicKey) {
     return selectedTopics.some(
@@ -47,14 +45,17 @@ export function Lernziele() {
   }
 
   function toggleTopic(tk: TopicKey) {
-    setSelectedTopics((prev) =>
-      isSelected(tk)
+    setSelectedTopics((prev) => {
+      const alreadySelected = prev.some(
+        (s) => s.leitidee === tk.leitidee && s.thema === tk.thema && s.unterthema === tk.unterthema
+      )
+      return alreadySelected
         ? prev.filter(
             (s) =>
               !(s.leitidee === tk.leitidee && s.thema === tk.thema && s.unterthema === tk.unterthema)
           )
         : [...prev, tk]
-    )
+    })
   }
 
   async function handleSave() {
@@ -101,16 +102,22 @@ export function Lernziele() {
             Noch keine Themen geübt — erst wenn Schüler gearbeitet haben, erscheinen hier Themen.
           </p>
         ) : (
-          leitideen.map((leitidee) => (
-            <div key={leitidee}>
-              <p className="text-slate-300 font-medium mb-2">{leitidee}</p>
-              {Object.entries(tree[leitidee]).map(([thema, unterthemen]) => {
-                const filtered = unterthemen.filter((tk) =>
+          leitideen.map((leitidee) => {
+            const themata = Object.entries(tree[leitidee])
+              .map(([thema, unterthemen]) => ({
+                thema,
+                filtered: unterthemen.filter((tk) =>
                   search.length === 0 ||
                   tk.unterthema.toLowerCase().includes(search.toLowerCase()) ||
                   tk.thema.toLowerCase().includes(search.toLowerCase())
-                )
-                if (filtered.length === 0) return null
+                ),
+              }))
+              .filter(({ filtered }) => filtered.length > 0)
+            if (themata.length === 0) return null
+            return (
+            <div key={leitidee}>
+              <p className="text-slate-300 font-medium mb-2">{leitidee}</p>
+              {themata.map(({ thema, filtered }) => {
                 return (
                   <div key={thema} className="ml-4 mb-3">
                     <p className="text-slate-400 text-sm mb-1">{thema}</p>
@@ -118,7 +125,7 @@ export function Lernziele() {
                       {filtered.map((tk) => {
                         const checkboxId = `topic-${tk.leitidee}-${tk.thema}-${tk.unterthema}`
                         return (
-                          <div key={tk.unterthema} className="flex items-center gap-2">
+                          <div key={checkboxId} className="flex items-center gap-2">
                             <input
                               type="checkbox"
                               id={checkboxId}
@@ -141,7 +148,8 @@ export function Lernziele() {
                 )
               })}
             </div>
-          ))
+            )
+          })
         )}
       </div>
 
