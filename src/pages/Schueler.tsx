@@ -1,6 +1,6 @@
 import { useStore } from '../store'
 import { useStudents, useClasses } from '../api/hooks'
-import { useRemoveStudent } from '../api/mutations'
+import { useRemoveStudent, useResetPassword } from '../api/mutations'
 import { StudentPanel } from '../components/StudentPanel'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,12 +18,13 @@ export function Schueler() {
   const setActivePanelStudentId = useStore((s) => s.setActivePanelStudentId)
 
   const { data: students = [], isLoading } = useStudents(selectedClassId)
-  const { data: classes = [] } = useClasses(selectedClassId ? [selectedClassId] : [])
+  const { data: classes = [], isLoading: classesLoading } = useClasses(selectedClassId ? [selectedClassId] : [])
   const classDoc = classes[0]
   const removeStudent = useRemoveStudent(selectedClassId ?? '')
+  const resetPassword = useResetPassword()
 
   if (!selectedClassId) return <div className="p-8 text-slate-400">Keine Klasse ausgewählt</div>
-  if (isLoading) return <div className="p-8 text-slate-400">Laden…</div>
+  if (isLoading || classesLoading) return <div className="p-8 text-slate-400">Laden…</div>
   if (!classDoc) return <div className="p-8 text-slate-400">Keine Klasse ausgewählt</div>
 
   return (
@@ -40,6 +41,7 @@ export function Schueler() {
           <TableHeader>
             <TableRow className="border-slate-800">
               <TableHead className="text-slate-400">Name</TableHead>
+              <TableHead className="text-slate-400">Klasse</TableHead>
               <TableHead className="text-slate-400">Zuletzt aktiv</TableHead>
               <TableHead className="text-slate-400">Genauigkeit (7T)</TableHead>
               <TableHead className="text-slate-400">Streak</TableHead>
@@ -54,6 +56,7 @@ export function Schueler() {
                 onClick={() => setActivePanelStudentId(s.uid)}
               >
                 <TableCell className="text-white font-medium">{s.displayName}</TableCell>
+                <TableCell className="text-slate-400 text-sm">{classDoc.name}</TableCell>
                 <TableCell className="text-slate-400 text-sm">
                   {s.lastActive
                     ? new Date(s.lastActive).toLocaleDateString('de')
@@ -70,6 +73,15 @@ export function Schueler() {
                       onClick={() => setActivePanelStudentId(s.uid)}
                     >
                       Details
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-slate-400 hover:text-white"
+                      disabled={resetPassword.isPending}
+                      onClick={() => resetPassword.mutate(s.email)}
+                    >
+                      Passwort
                     </Button>
                     <Button
                       variant="ghost"

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import type { StudentSummary } from '../types'
 
 const { mockStudents } = vi.hoisted(() => ({
@@ -33,11 +34,15 @@ const { mockStudents } = vi.hoisted(() => ({
 
 vi.mock('../api/hooks', () => ({
   useStudents: vi.fn().mockReturnValue({ data: mockStudents, isLoading: false }),
-  useClasses: vi.fn().mockReturnValue({ data: [{ id: 'cls-1', name: '11a', teacherId: 't-1', schoolId: 'mvl', studentIds: ['s1', 's2'], gridConfig: { rows: 3, cols: 4 }, deskPositions: {}, createdAt: '', updatedAt: '' }] }),
+  useClasses: vi.fn().mockReturnValue({
+    data: [{ id: 'cls-1', name: '11a', teacherId: 't-1', schoolId: 'mvl', studentIds: ['s1', 's2'], gridConfig: { rows: 3, cols: 4 }, deskPositions: {}, createdAt: '', updatedAt: '' }],
+    isLoading: false,
+  }),
 }))
 
 vi.mock('../api/mutations', () => ({
   useRemoveStudent: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useResetPassword: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }))
 
 vi.mock('../store', () => ({
@@ -58,6 +63,8 @@ vi.mock('../components/StudentPanel', () => ({
 void (null as unknown as StudentSummary)
 
 import { Schueler } from './Schueler'
+import * as storeModule from '../store'
+import * as mutationsModule from '../api/mutations'
 
 describe('Schueler', () => {
   it('renders one table row per student', () => {
@@ -75,5 +82,28 @@ describe('Schueler', () => {
   it('shows streak values', () => {
     render(<Schueler />)
     expect(screen.getByText('5 Tage')).toBeInTheDocument()
+  })
+
+  it('clicking Details button calls setActivePanelStudentId', async () => {
+    const setActivePanelStudentId = vi.fn()
+    const spy = vi.spyOn(storeModule, 'useStore').mockImplementation((selector: (s: object) => unknown) =>
+      selector({
+        selectedClassId: 'cls-1',
+        activePanelStudentId: null,
+        setActivePanelStudentId,
+      })
+    )
+    render(<Schueler />)
+    await userEvent.click(screen.getAllByRole('button', { name: /details/i })[0])
+    expect(setActivePanelStudentId).toHaveBeenCalledWith('s1')
+    spy.mockRestore()
+  })
+
+  it('clicking Entfernen calls removeStudent.mutate', async () => {
+    const mutate = vi.fn()
+    vi.mocked(mutationsModule.useRemoveStudent).mockReturnValue({ mutate, isPending: false })
+    render(<Schueler />)
+    await userEvent.click(screen.getAllByRole('button', { name: /entfernen/i })[0])
+    expect(mutate).toHaveBeenCalledWith('s1')
   })
 })
