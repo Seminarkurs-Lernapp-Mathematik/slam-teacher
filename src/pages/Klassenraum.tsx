@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStore } from '../store'
 import { useStudents, useClasses } from '../api/hooks'
 import { useUpdateClass } from '../api/mutations'
@@ -18,13 +18,20 @@ export function Klassenraum() {
   const setActivePanelStudentId = useStore((s) => s.setActivePanelStudentId)
 
   const { data: students = [] } = useStudents(selectedClassId, 30_000)
-  const { data: classes = [] } = useClasses(selectedClassId ? [selectedClassId] : [])
+  const { data: classes = [], isLoading: classesLoading } = useClasses(selectedClassId ? [selectedClassId] : [])
   const classDoc = classes[0]
   const updateClass = useUpdateClass(selectedClassId ?? '')
 
   const [configOpen, setConfigOpen] = useState(false)
-  const [configRows, setConfigRows] = useState(classDoc?.gridConfig.rows ?? 4)
-  const [configCols, setConfigCols] = useState(classDoc?.gridConfig.cols ?? 5)
+  const [configRows, setConfigRows] = useState(4)
+  const [configCols, setConfigCols] = useState(5)
+
+  useEffect(() => {
+    if (classDoc) {
+      setConfigRows(classDoc.gridConfig.rows)
+      setConfigCols(classDoc.gridConfig.cols)
+    }
+  }, [classDoc])
 
   async function handleSaveDeskPositions(positions: Record<string, { col: number; row: number }>) {
     await updateClass.mutateAsync({ deskPositions: positions })
@@ -54,6 +61,8 @@ export function Klassenraum() {
     setConfigOpen(false)
   }
 
+  if (!selectedClassId) return <div className="p-8 text-slate-400">Keine Klasse ausgewählt</div>
+  if (classesLoading) return <div className="p-8 text-slate-400">Laden…</div>
   if (!classDoc) return <div className="p-8 text-slate-400">Keine Klasse ausgewählt</div>
 
   return (

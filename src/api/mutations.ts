@@ -49,6 +49,7 @@ export function useUpdateClass(classId: string) {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['students', classId] })
+      qc.invalidateQueries({ queryKey: ['classes'] })
     },
   })
 }
