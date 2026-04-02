@@ -18,6 +18,11 @@ vi.mock('./api/hooks', () => ({
     isError: false,
   }),
   useClasses: vi.fn().mockReturnValue({ data: [] }),
+  useStudents: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('./api/mutations', () => ({
+  useUpdateClass: vi.fn(() => ({ mutateAsync: vi.fn(), isPending: false })),
 }))
 
 vi.mock('./store', () => ({
