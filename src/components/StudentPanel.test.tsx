@@ -40,6 +40,9 @@ vi.mock('../api/hooks', () => ({
   useStudents: vi.fn((classId: string | null) => ({
     data: classId ? [mockStudent] : [],
   })),
+  useClasses: vi.fn().mockReturnValue({
+    data: [{ id: 'cls-1', name: '11a', teacherId: 't-1', schoolId: 'mvl', studentIds: ['s1'], gridConfig: { rows: 3, cols: 4 }, deskPositions: {}, createdAt: '', updatedAt: '' }],
+  }),
   useClassFeed: vi.fn().mockReturnValue({ data: mockFeed, isLoading: false }),
   useAiAssessment: vi.fn().mockReturnValue({
     data: { assessment: 'Anna zeigt gute Kenntnisse in Analysis.', generatedAt: '' },
