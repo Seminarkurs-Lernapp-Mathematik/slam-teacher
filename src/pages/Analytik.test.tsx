@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import type { AnalyticsResponse } from '../types'
+import * as hooksModule from '../api/hooks'
 
 const { mockAnalytics } = vi.hoisted(() => ({
   mockAnalytics: {
@@ -69,5 +70,22 @@ describe('Analytik', () => {
     render(<Analytik />)
     expect(screen.getByText(/Potenzregel/)).toBeInTheDocument()
     expect(screen.getByText(/Kettenregel/)).toBeInTheDocument()
+  })
+
+  it('shows loading state', () => {
+    const spy = vi.spyOn(hooksModule, 'useAnalytics').mockReturnValue({ data: undefined, isLoading: true } as ReturnType<typeof hooksModule.useAnalytics>)
+    render(<Analytik />)
+    expect(screen.getByText('Laden…')).toBeInTheDocument()
+    spy.mockRestore()
+  })
+
+  it('shows empty topics message', () => {
+    const spy = vi.spyOn(hooksModule, 'useAnalytics').mockReturnValue({
+      data: { summary: mockAnalytics.summary, topics: [] },
+      isLoading: false,
+    } as ReturnType<typeof hooksModule.useAnalytics>)
+    render(<Analytik />)
+    expect(screen.getByText('Noch keine Daten')).toBeInTheDocument()
+    spy.mockRestore()
   })
 })

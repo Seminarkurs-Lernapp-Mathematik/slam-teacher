@@ -59,30 +59,22 @@ function TopicChart({ topics }: { topics: TopicAccuracy[] }) {
     <div className="flex flex-col gap-3">
       {topics.map((t) => {
         const total = t.correct + t.incorrect
-        const correctPct = total > 0 ? (t.correct / total) * 100 : 0
-        const incorrectPct = 100 - correctPct
 
         return (
-          <div key={`${t.leitidee}-${t.thema}-${t.unterthema}`} className="flex items-center gap-4">
+          <div key={`${t.leitidee}|${t.thema}|${t.unterthema}`} className="flex items-center gap-4">
             {/* Label */}
             <div className="w-64 flex-none text-sm text-slate-300 truncate">
               <span className="text-slate-500 text-xs">{t.leitidee} › {t.thema} › </span>
               {t.unterthema}
             </div>
 
-            {/* Bar */}
-            <div
-              className="flex-1 h-5 bg-slate-800 rounded overflow-hidden flex"
-              style={{ maxWidth: `${(total / maxTotal) * 100}%` }}
-            >
-              <div
-                className="h-full bg-green-500"
-                style={{ width: `${correctPct}%` }}
-              />
-              <div
-                className="h-full bg-red-500"
-                style={{ width: `${incorrectPct}%` }}
-              />
+            {/* Bar track — fills remaining space */}
+            <div className="flex-1 min-w-0 h-5 bg-slate-800 rounded overflow-hidden">
+              {/* Volume-proportional fill */}
+              <div className="h-full flex" style={{ width: `${(total / maxTotal) * 100}%` }}>
+                <div className="h-full bg-green-500" style={{ width: `${t.accuracyPct}%` }} />
+                <div className="h-full bg-red-500" style={{ width: `${100 - t.accuracyPct}%` }} />
+              </div>
             </div>
 
             {/* Accuracy */}
