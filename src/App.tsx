@@ -15,7 +15,7 @@ import { Lernziele } from './pages/Lernziele'
 import { Einstellungen } from './pages/Einstellungen'
 
 function AuthenticatedApp() {
-  const { data: teacher, isLoading, isError } = useTeacher()
+  const { data: teacher, isLoading, isError, error } = useTeacher()
   const setTheme = useStore((s) => s.setTheme)
   const setSelectedClassId = useStore((s) => s.setSelectedClassId)
 
@@ -38,8 +38,16 @@ function AuthenticatedApp() {
   }
 
   // 404 from /api/teacher/me means first login → onboarding
+  // Other errors (500, network failure) show an error message instead
   if (isError) {
-    return <Onboarding />
+    if (error instanceof Error && error.message.includes('404')) {
+      return <Onboarding />
+    }
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <p className="text-red-400">Fehler beim Laden. Bitte Seite neu laden.</p>
+      </div>
+    )
   }
 
   return (

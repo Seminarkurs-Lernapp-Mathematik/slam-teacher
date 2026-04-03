@@ -66,5 +66,6 @@ export function useAiAssessment(userId: string | null, enabled: boolean) {
     enabled: !!userId && enabled,
     staleTime: Infinity,
     gcTime: Infinity,
+    refetchOnWindowFocus: false,
   })
 }

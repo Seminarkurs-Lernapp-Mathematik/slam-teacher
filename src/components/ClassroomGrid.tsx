@@ -142,7 +142,7 @@ export function ClassroomGrid({
     if (!over) return
 
     const draggedUid = active.id as string
-    const [targetColStr, targetRowStr] = (over.id as string).split('-')
+    const [targetColStr, targetRowStr] = (over.id as string).split('|')
     const targetCol = Number(targetColStr)
     const targetRow = Number(targetRowStr)
 
@@ -187,7 +187,7 @@ export function ClassroomGrid({
         >
           {Array.from({ length: rows }, (_, row) =>
             Array.from({ length: cols }, (_, col) => {
-              const cellId = `${col}-${row}`
+              const cellId = `${col}|${row}`
               const student = students.find((s) => {
                 const pos = positions[s.uid]
                 return pos?.col === col && pos?.row === row

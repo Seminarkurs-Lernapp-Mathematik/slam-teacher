@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTeacher, useClasses } from '../api/hooks'
 import { useUpdateTeacher, useInviteStudent, useCreateClass, useDeleteClass } from '../api/mutations'
 import { useStore } from '../store'
@@ -19,7 +19,7 @@ export function Einstellungen() {
   const deleteClass = useDeleteClass()
   const inviteStudent = useInviteStudent()
 
-  const [displayName, setDisplayName] = useState(teacher?.displayName ?? '')
+  const [displayName, setDisplayName] = useState('')
   const [profileSaved, setProfileSaved] = useState(false)
 
   // New class form
@@ -29,8 +29,16 @@ export function Einstellungen() {
 
   // Invite student form
   const [inviteEmails, setInviteEmails] = useState('')
-  const [inviteClassId, setInviteClassId] = useState(teacher?.classIds[0] ?? '')
+  const [inviteClassId, setInviteClassId] = useState('')
   const [inviteStatus, setInviteStatus] = useState<string | null>(null)
+
+  // Sync async-loaded teacher data into controlled inputs
+  useEffect(() => {
+    if (teacher) {
+      setDisplayName(teacher.displayName)
+      setInviteClassId((prev) => prev || (teacher.classIds[0] ?? ''))
+    }
+  }, [teacher])
 
   async function handleSaveProfile() {
     setProfileSaved(false)

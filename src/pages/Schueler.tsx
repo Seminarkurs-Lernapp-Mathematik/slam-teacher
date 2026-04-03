@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useStore } from '../store'
 import { useStudents, useClasses } from '../api/hooks'
 import { useRemoveStudent, useResetPassword } from '../api/mutations'
@@ -22,6 +23,8 @@ export function Schueler() {
   const classDoc = classes[0]
   const removeStudent = useRemoveStudent(selectedClassId ?? '')
   const resetPassword = useResetPassword()
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
+  const [pendingResetId, setPendingResetId] = useState<string | null>(null)
 
   if (!selectedClassId) return <div className="p-8 text-slate-400">Keine Klasse ausgewählt</div>
   if (isLoading || classesLoading) return <div className="p-8 text-slate-400">Laden…</div>
@@ -78,8 +81,11 @@ export function Schueler() {
                       variant="ghost"
                       size="sm"
                       className="text-slate-400 hover:text-white"
-                      disabled={resetPassword.isPending}
-                      onClick={() => resetPassword.mutate(s.email)}
+                      disabled={pendingResetId === s.uid && resetPassword.isPending}
+                      onClick={() => {
+                        setPendingResetId(s.uid)
+                        resetPassword.mutate(s.email)
+                      }}
                     >
                       Passwort
                     </Button>
@@ -87,8 +93,11 @@ export function Schueler() {
                       variant="ghost"
                       size="sm"
                       className="text-red-500/70 hover:text-red-400"
-                      disabled={removeStudent.isPending}
-                      onClick={() => removeStudent.mutate(s.uid)}
+                      disabled={pendingRemoveId === s.uid && removeStudent.isPending}
+                      onClick={() => {
+                        setPendingRemoveId(s.uid)
+                        removeStudent.mutate(s.uid)
+                      }}
                     >
                       Entfernen
                     </Button>
