@@ -1,4 +1,3 @@
-import React from 'react'
 import type { StudentSummary } from '../types'
 
 interface Props {
