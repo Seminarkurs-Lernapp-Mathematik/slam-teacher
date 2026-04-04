@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Klassenraum Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #e2e8f0;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .page-header .meta {
+    font-size: 12px;
+    color: #475569;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .alert-pill {
+    background: rgba(249,115,22,0.15);
+    border: 1px solid rgba(249,115,22,0.35);
+    color: #fb923c;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .alert-pill::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #f97316;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn:hover { border-color: #2563eb; color: #93c5fd; }
+
+  /* The classroom room */
+  .classroom {
+    position: relative;
+    width: 100%;
+    height: 580px;
+    background: #111827;
+    border-radius: 4px;
+    border: 3px solid #374151;
+    overflow: hidden;
+    /* Room perspective feel */
+    background-image:
+      linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Ceiling light bar */
+  .ceiling-light {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 10px;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 80%, rgba(255,255,255,0));
+    border-radius: 4px;
+    box-shadow: 0 0 40px 8px rgba(200,220,255,0.06);
+  }
+
+  /* Windows on the left wall */
+  .windows {
+    position: absolute;
+    left: 8px;
+    top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .window {
+    width: 14px;
+    height: 52px;
+    background: rgba(147,197,253,0.08);
+    border: 1px solid rgba(147,197,253,0.2);
+    border-radius: 2px;
+  }
+
+  /* Door at bottom */
+  .door {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 10px;
+    background: #1f2937;
+    border-top: 2px solid #374151;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* ---- DESK COMPONENT ---- */
+  .desk-wrapper {
+    position: absolute;
+    cursor: grab;
+    transition: filter 0.15s;
+    user-select: none;
+  }
+
+  .desk-wrapper:hover { filter: brightness(1.2); z-index: 10; }
+  .desk-wrapper:active { cursor: grabbing; }
+
+  .desk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Label above the desk */
+  .desk-label {
+    background: rgba(15,23,42,0.92);
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 4px 8px;
+    text-align: center;
+    margin-bottom: 4px;
+    min-width: 90px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .desk-label .name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f1f5f9;
+    white-space: nowrap;
+  }
+
+  .desk-label .status {
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Desk surface (top-down view) */
+  .desk-surface {
+    width: 82px;
+    height: 36px;
+    border-radius: 5px;
+    border: 1.5px solid;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  /* Chair (semicircle below desk) */
+  .desk-chair {
+    width: 42px;
+    height: 20px;
+    border-radius: 0 0 28px 28px;
+    border: 1.5px solid;
+    border-top: none;
+    margin-top: 1px;
+  }
+
+  /* Status-based colors */
+  .status-active .desk-surface {
+    background: rgba(22,101,52,0.25);
+    border-color: rgba(34,197,94,0.4);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 10px rgba(34,197,94,0.12);
+  }
+  .status-active .desk-chair {
+    background: rgba(22,101,52,0.2);
+    border-color: rgba(34,197,94,0.3);
+  }
+  .status-active .status-dot { background: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.8); }
+  .status-active .status-text { color: #4ade80; }
+
+  .status-struggling .desk-surface {
+    background: rgba(124,29,29,0.3);
+    border-color: rgba(239,68,68,0.5);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 12px rgba(239,68,68,0.15);
+  }
+  .status-struggling .desk-chair {
+    background: rgba(124,29,29,0.2);
+    border-color: rgba(239,68,68,0.35);
+  }
+  .status-struggling .status-dot { background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.8); animation: pulse 1.2s ease-in-out infinite; }
+  .status-struggling .status-text { color: #f87171; }
+  .status-struggling .desk-label { border-color: rgba(239,68,68,0.3); }
+
+  .status-idle .desk-surface {
+    background: rgba(120,85,15,0.25);
+    border-color: rgba(245,158,11,0.35);
+  }
+  .status-idle .desk-chair {
+    background: rgba(120,85,15,0.18);
+    border-color: rgba(245,158,11,0.25);
+  }
+  .status-idle .status-dot { background: #f59e0b; }
+  .status-idle .status-text { color: #fbbf24; }
+
+  .status-offline .desk-surface {
+    background: rgba(30,41,59,0.5);
+    border-color: rgba(71,85,105,0.3);
+    opacity: 0.55;
+  }
+  .status-offline .desk-chair {
+    background: rgba(30,41,59,0.4);
+    border-color: rgba(71,85,105,0.2);
+  }
+  .status-offline .status-dot { background: #475569; }
+  .status-offline .status-text { color: #64748b; }
+  .status-offline .desk-label { opacity: 0.7; }
+
+  /* Teacher desk — larger, bottom-right, distinctive */
+  .teacher-desk-wrapper {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    cursor: grab;
+  }
+
+  .teacher-desk-label {
+    background: rgba(30,58,138,0.85);
+    border: 1px solid rgba(37,99,235,0.5);
+    border-radius: 6px;
+    padding: 4px 10px;
+    text-align: center;
+    margin-bottom: 4px;
+    backdrop-filter: blur(4px);
+  }
+
+  .teacher-desk-label .name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #93c5fd;
+  }
+
+  .teacher-desk-surface {
+    width: 110px;
+    height: 52px;
+    background: rgba(30,58,138,0.3);
+    border: 1.5px solid rgba(37,99,235,0.5);
+    border-radius: 6px;
+    box-shadow: 0 0 16px rgba(37,99,235,0.2);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .teacher-desk-surface::after {
+    content: '💻';
+    font-size: 16px;
+    opacity: 0.7;
+  }
+
+  .teacher-desk-chair {
+    width: 52px;
+    height: 24px;
+    background: rgba(30,58,138,0.25);
+    border: 1.5px solid rgba(37,99,235,0.35);
+    border-top: none;
+    border-radius: 0 0 32px 32px;
+    margin: 1px auto 0;
+  }
+
+  /* Drag hint */
+  .drag-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #334155;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>Klassenraum — 11a</h1>
+    <div class="meta">23 Schüler · 14 aktiv · Montag, 31. März · 09:45</div>
+  </div>
+  <div class="header-right">
+    <div class="alert-pill">2 Schüler kämpfen mit "Ableitungen"</div>
+    <button class="btn">☀️ Beamer-Modus</button>
+    <button class="btn">⚙ Tische bearbeiten</button>
+  </div>
+</div>
+
+<div class="classroom" id="classroom">
+  <div class="ceiling-light"></div>
+  <div class="windows">
+    <div class="window"></div>
+    <div class="window"></div>
+    <div class="window"></div>
+    <div class="window"></div>
+  </div>
+  <div class="door"></div>
+  <div class="drag-hint">Tische per Drag & Drop verschieben</div>
+
+  <!-- Row 1 -->
+  <div class="desk-wrapper status-active" style="left:110px;top:42px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Anna B.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 3 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:240px;top:42px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Ben R.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 1 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-struggling" style="left:370px;top:42px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Emily W.</div><div class="status"><div class="status-dot"></div><span class="status-text">Kämpft · 18 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:500px;top:42px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Felix K.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 2 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-offline" style="left:630px;top:42px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Greta M.</div><div class="status"><div class="status-dot"></div><span class="status-text">Offline · 2 Tage</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="desk-wrapper status-active" style="left:110px;top:178px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Hannah S.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 4 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-idle" style="left:240px;top:178px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Jonas L.</div><div class="status"><div class="status-dot"></div><span class="status-text">Idle · 9 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:370px;top:178px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Klara N.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 1 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-struggling" style="left:500px;top:178px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Lukas H.</div><div class="status"><div class="status-dot"></div><span class="status-text">Kämpft · 22 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:630px;top:178px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Mia P.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 6 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <!-- Row 3 -->
+  <div class="desk-wrapper status-active" style="left:110px;top:314px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Nico J.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 2 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-offline" style="left:240px;top:314px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Olivia T.</div><div class="status"><div class="status-dot"></div><span class="status-text">Offline · 5 Tage</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:370px;top:314px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Paul G.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 7 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-idle" style="left:500px;top:314px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Sara K.</div><div class="status"><div class="status-dot"></div><span class="status-text">Idle · 14 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <!-- Row 4 -->
+  <div class="desk-wrapper status-active" style="left:110px;top:450px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Tim S.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 1 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:240px;top:450px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Uwe F.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 3 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <div class="desk-wrapper status-active" style="left:370px;top:450px">
+    <div class="desk">
+      <div class="desk-label"><div class="name">Vera Z.</div><div class="status"><div class="status-dot"></div><span class="status-text">Aktiv · 5 min</span></div></div>
+      <div class="desk-surface"></div>
+      <div class="desk-chair"></div>
+    </div>
+  </div>
+
+  <!-- Teacher desk -->
+  <div class="teacher-desk-wrapper">
+    <div class="desk">
+      <div class="teacher-desk-label"><div class="name">Lehrkraft</div></div>
+      <div class="teacher-desk-surface"></div>
+      <div class="teacher-desk-chair"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simple drag-and-drop for the demo
+document.querySelectorAll('.desk-wrapper, .teacher-desk-wrapper').forEach(el => {
+  let dragging = false, ox = 0, oy = 0;
+
+  el.addEventListener('mousedown', e => {
+    dragging = true;
+    const rect = el.getBoundingClientRect();
+    const classroom = document.getElementById('classroom').getBoundingClientRect();
+    ox = e.clientX - rect.left;
+    oy = e.clientY - rect.top;
+    el.style.zIndex = 100;
+    el.style.transition = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const classroom = document.getElementById('classroom').getBoundingClientRect();
+    let x = e.clientX - classroom.left - ox;
+    let y = e.clientY - classroom.top - oy;
+    x = Math.max(0, Math.min(x, classroom.width - el.offsetWidth));
+    y = Math.max(0, Math.min(y, classroom.height - el.offsetHeight));
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.bottom = 'auto';
+    el.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      el.style.zIndex = '';
+    }
+  });
+});
+</script>
+
+</body>
+</html>

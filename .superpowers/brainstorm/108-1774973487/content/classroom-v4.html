@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Klassenraum v4</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0d1117;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.page-header h1 { font-size: 17px; font-weight: 700; color: #f1f5f9; }
+.page-header .meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+
+.btn {
+  background: #1a2035; border: 1px solid #2a3555;
+  color: #8899bb; border-radius: 8px; padding: 6px 14px;
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+}
+.btn:hover { border-color: #2563eb; color: #93c5fd; background: #1e2d50; }
+.btn.active { background: rgba(37,99,235,0.2); border-color: #2563eb; color: #93c5fd; }
+
+.alert-pill {
+  background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.28);
+  color: #fb923c; border-radius: 20px; padding: 5px 14px;
+  font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 6px;
+}
+.alert-dot { width: 6px; height: 6px; background: #f97316; border-radius: 50%; animation: blink 1.6s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ---- ROOM SHELL ---- */
+.room-outer {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2.5px solid #1e2d4a;
+  box-shadow: 0 0 0 6px #111a2e, 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.room {
+  position: relative;
+  width: 100%;
+  /* Warm-ish dark blue — friendlier than pure black */
+  background: #101828;
+}
+
+/* Subtle ambient light from the board */
+.room::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.room.edit-mode {
+  background-image:
+    linear-gradient(rgba(37,99,235,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.055) 1px, transparent 1px);
+}
+
+/* ---- TAFEL (board) ---- */
+.board {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 48px;
+  background: linear-gradient(180deg, #1c2e54 0%, #162240 100%);
+  border-bottom: 3px solid #2563eb;
+  display: flex; align-items: center; justify-content: center;
+  gap: 0;
+}
+.board-surface {
+  width: calc(100% - 80px);
+  height: 30px;
+  background: rgba(13,22,45,0.75);
+  border: 1px solid rgba(37,99,235,0.18);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.board-text {
+  font-size: 12px; font-weight: 600;
+  color: rgba(147,197,253,0.45);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* ---- DESK CONTAINER (centered) ---- */
+#deskContainer {
+  position: absolute;
+  /* top / left set by JS; width set by JS */
+}
+
+/* ---- DESK TILES ---- */
+.desk-tile {
+  position: absolute;
+  width: 108px; height: 66px;
+  border-radius: 10px;
+  border: 1.5px solid;
+  padding: 9px 11px;
+  cursor: default;
+  transition: box-shadow 0.15s, transform 0.12s;
+  user-select: none;
+  /* Soft inner highlight */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.room.edit-mode .desk-tile { cursor: grab; }
+.room.edit-mode .desk-tile:hover { transform: translateY(-2px) scale(1.02); z-index: 10; }
+.room.edit-mode .desk-tile.dragging {
+  cursor: grabbing; transform: scale(1.05) rotate(1deg);
+  z-index: 100; box-shadow: 0 10px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transition: box-shadow 0.1s;
+}
+
+.tile-name { font-size: 11.5px; font-weight: 600; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
+.tile-status { display: flex; align-items: center; gap: 5px; }
+.tile-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.tile-status-text { font-size: 10px; font-weight: 500; }
+.tile-time { font-size: 9.5px; color: #4a5a7a; margin-top: 3px; }
+
+/* Status colours — slightly more vivid / warmer */
+.s-active {
+  background: linear-gradient(135deg, rgba(16,74,40,0.45) 0%, rgba(15,60,35,0.3) 100%);
+  border-color: rgba(34,197,94,0.4);
+  box-shadow: 0 0 12px rgba(34,197,94,0.07), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.s-active .tile-dot { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.8); }
+.s-active .tile-status-text { color: #4ade80; }
+
+.s-struggling {
+  background: linear-gradient(135deg, rgba(120,20,20,0.45) 0%, rgba(100,15,15,0.3) 100%);
+  border-color: rgba(239,68,68,0.55);
+  box-shadow: 0 0 16px rgba(239,68,68,0.1), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.s-struggling .tile-dot { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.8); animation: blink 1.1s ease-in-out infinite; }
+.s-struggling .tile-status-text { color: #f87171; }
+
+.s-idle {
+  background: linear-gradient(135deg, rgba(100,55,10,0.4) 0%, rgba(80,45,8,0.25) 100%);
+  border-color: rgba(245,158,11,0.35);
+  box-shadow: 0 0 10px rgba(245,158,11,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.s-idle .tile-dot { background: #f59e0b; box-shadow: 0 0 5px rgba(245,158,11,0.6); }
+.s-idle .tile-status-text { color: #fbbf24; }
+
+.s-offline {
+  background: rgba(18,26,44,0.6);
+  border-color: rgba(40,55,80,0.5);
+  opacity: 0.45;
+}
+.s-offline .tile-dot { background: #2d3f5e; }
+.s-offline .tile-status-text { color: #4a5a7a; }
+
+/* Snap ghost */
+.snap-ghost {
+  position: absolute;
+  width: 108px; height: 66px;
+  border: 2px dashed rgba(37,99,235,0.45);
+  border-radius: 10px;
+  pointer-events: none;
+  display: none;
+  background: rgba(37,99,235,0.06);
+  z-index: 5;
+}
+
+/* Edit banner */
+#editBanner {
+  display: none;
+  position: absolute;
+  top: 56px; left: 50%; transform: translateX(-50%);
+  background: rgba(30,50,100,0.7); border: 1px solid rgba(37,99,235,0.35);
+  border-radius: 20px; padding: 5px 16px;
+  font-size: 11px; color: #93c5fd; font-weight: 500;
+  z-index: 50; pointer-events: none; white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ---- CONFIG MODAL ---- */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #111827; border: 1px solid #1e2d4a;
+  border-radius: 14px; padding: 28px; width: 420px;
+  box-shadow: 0 28px 70px rgba(0,0,0,0.6);
+}
+.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: #4a5a7a; margin-bottom: 24px; }
+.form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.form-label { font-size: 13px; color: #8899bb; }
+.form-label small { display: block; font-size: 11px; color: #4a5a7a; margin-top: 2px; }
+.num-input { display: flex; align-items: center; border: 1px solid #1e2d4a; border-radius: 8px; overflow: hidden; }
+.num-btn { width: 34px; height: 34px; background: #1a2640; border: none; color: #8899bb; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+.num-btn:hover { background: #2563eb; color: white; }
+.num-val { width: 44px; height: 34px; background: #111827; text-align: center; font-size: 15px; font-weight: 700; color: #f1f5f9; border: none; outline: none; display: flex; align-items: center; justify-content: center; border-left: 1px solid #1e2d4a; border-right: 1px solid #1e2d4a; }
+.preview-grid { background: #0d1421; border: 1px solid #1e2d4a; border-radius: 10px; padding: 16px; margin-bottom: 20px; min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.preview-row { display: flex; gap: 6px; }
+.preview-cell { width: 30px; height: 20px; border-radius: 4px; background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.22); }
+.preview-info { font-size: 11px; color: #4a5a7a; margin-top: 8px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.btn-primary { background: #2563eb; border: 1px solid #3b82f6; color: white; border-radius: 8px; padding: 8px 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-cancel { background: transparent; border: 1px solid #1e2d4a; color: #64748b; border-radius: 8px; padding: 8px 18px; font-size: 13px; cursor: pointer; }
+.btn-cancel:hover { border-color: #2a3555; color: #8899bb; }
+</style>
+</head>
+<body>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h2>Klassenraum konfigurieren</h2>
+    <div class="modal-sub">Legt das Raster fest. Schüler werden alphabetisch eingesetzt.</div>
+    <div class="form-row">
+      <div class="form-label">Anzahl Reihen<small>von vorne nach hinten</small></div>
+      <div class="num-input">
+        <button class="num-btn" onclick="changeVal('rows',-1)">−</button>
+        <div class="num-val" id="rows-val">4</div>
+        <button class="num-btn" onclick="changeVal('rows',+1)">+</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">Plätze pro Reihe<small>nebeneinander</small></div>
+      <div class="num-input">
+        <button class="num-btn" onclick="changeVal('cols',-1)">−</button>
+        <div class="num-val" id="cols-val">5</div>
+        <button class="num-btn" onclick="changeVal('cols',+1)">+</button>
+      </div>
+    </div>
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeConfig()">Abbrechen</button>
+      <button class="btn-primary" onclick="applyConfig()">Übernehmen</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div>
+    <h1>Klassenraum — 11a</h1>
+    <div class="meta">18 Schüler · 12 aktiv · Montag, 31. März · 09:45 Uhr</div>
+  </div>
+  <div class="header-right">
+    <div class="alert-pill"><div class="alert-dot"></div>2 Schüler kämpfen mit „Ableitungen"</div>
+    <button class="btn" onclick="openConfig()">⊞ Konfigurieren</button>
+    <button class="btn" id="editBtn" onclick="toggleEdit()">✎ Bearbeiten</button>
+    <button class="btn">☀ Beamer-Modus</button>
+  </div>
+</div>
+
+<!-- ROOM -->
+<div class="room-outer">
+  <div class="room" id="room">
+    <div class="board">
+      <div class="board-surface">
+        <span class="board-text">Tafel</span>
+      </div>
+    </div>
+    <div class="snap-ghost" id="snapGhost"></div>
+    <div id="editBanner">✎ Bearbeitungsmodus — Tische verschieben, rasten am Raster ein</div>
+    <div id="deskContainer"></div>
+  </div>
+</div>
+
+<script>
+const BOARD_H  = 48;
+const WALL_TOP = 28;   // gap below board before first row
+const WALL_BTM = 36;   // breathing room below last row
+const TILE_W   = 108, TILE_H = 66;
+const GAP_X    = 20,  GAP_Y  = 20;
+
+let config = { rows: 4, cols: 5 };
+let configTemp = { rows: 4, cols: 5 };
+let editMode = false;
+let positions = [];
+
+const students = [
+  { name: 'Anna B.',    status: 's-active',    info: 'Aktiv',   time: '3 min'   },
+  { name: 'Ben R.',     status: 's-active',    info: 'Aktiv',   time: '1 min'   },
+  { name: 'Clara N.',   status: 's-active',    info: 'Aktiv',   time: '7 min'   },
+  { name: 'David S.',   status: 's-idle',      info: 'Idle',    time: '11 min'  },
+  { name: 'Emily W.',   status: 's-struggling',info: 'Kämpft',  time: '18 min'  },
+  { name: 'Felix K.',   status: 's-active',    info: 'Aktiv',   time: '2 min'   },
+  { name: 'Greta M.',   status: 's-offline',   info: 'Offline', time: '2 Tage'  },
+  { name: 'Hannah S.',  status: 's-active',    info: 'Aktiv',   time: '4 min'   },
+  { name: 'Jonas L.',   status: 's-idle',      info: 'Idle',    time: '9 min'   },
+  { name: 'Klara P.',   status: 's-active',    info: 'Aktiv',   time: '1 min'   },
+  { name: 'Lukas H.',   status: 's-struggling',info: 'Kämpft',  time: '22 min'  },
+  { name: 'Mia F.',     status: 's-active',    info: 'Aktiv',   time: '6 min'   },
+  { name: 'Nico J.',    status: 's-active',    info: 'Aktiv',   time: '2 min'   },
+  { name: 'Olivia T.',  status: 's-offline',   info: 'Offline', time: '5 Tage'  },
+  { name: 'Paul G.',    status: 's-active',    info: 'Aktiv',   time: '7 min'   },
+  { name: 'Sara K.',    status: 's-idle',      info: 'Idle',    time: '14 min'  },
+  { name: 'Tim S.',     status: 's-active',    info: 'Aktiv',   time: '1 min'   },
+  { name: 'Vera Z.',    status: 's-active',    info: 'Aktiv',   time: '5 min'   },
+];
+
+function initPositions() {
+  positions = students.map((_, i) => ({
+    col: i % config.cols,
+    row: Math.floor(i / config.cols),
+  }));
+}
+
+function getGridSize() {
+  const w = config.cols * TILE_W + (config.cols - 1) * GAP_X;
+  const h = config.rows * TILE_H + (config.rows - 1) * GAP_Y;
+  return { w, h };
+}
+
+function slotToPixel(col, row) {
+  return {
+    x: col * (TILE_W + GAP_X),
+    y: row * (TILE_H + GAP_Y),
+  };
+}
+
+function pixelToSlot(x, y) {
+  return {
+    col: Math.round(x / (TILE_W + GAP_X)),
+    row: Math.round(y / (TILE_H + GAP_Y)),
+  };
+}
+
+function renderDesks() {
+  const room = document.getElementById('room');
+  const container = document.getElementById('deskContainer');
+  const ghost = document.getElementById('snapGhost');
+  container.innerHTML = '';
+
+  const { w: gridW, h: gridH } = getGridSize();
+
+  // Room height = board + top wall + grid + bottom wall
+  const roomH = BOARD_H + WALL_TOP + gridH + WALL_BTM;
+  room.style.height = roomH + 'px';
+
+  // Center the container horizontally; top = board + wall gap
+  const roomW = room.offsetWidth;
+  const offsetX = Math.max(32, (roomW - gridW) / 2);
+  const offsetY = BOARD_H + WALL_TOP;
+
+  container.style.left  = offsetX + 'px';
+  container.style.top   = offsetY + 'px';
+  container.style.width = gridW + 'px';
+  container.style.height= gridH + 'px';
+
+  // Also position ghost relative to room (will adjust on drag)
+  ghost.style.width  = TILE_W + 'px';
+  ghost.style.height = TILE_H + 'px';
+
+  students.forEach((s, i) => {
+    const { x, y } = slotToPixel(positions[i].col, positions[i].row);
+    const tile = document.createElement('div');
+    tile.className = `desk-tile ${s.status}`;
+    tile.dataset.idx = i;
+    tile.style.left = x + 'px';
+    tile.style.top  = y + 'px';
+    tile.innerHTML = `
+      <div class="tile-name">${s.name}</div>
+      <div class="tile-status">
+        <div class="tile-dot"></div>
+        <span class="tile-status-text">${s.info}</span>
+      </div>
+      <div class="tile-time">${s.time}</div>
+    `;
+    setupDrag(tile, offsetX, offsetY);
+    container.appendChild(tile);
+  });
+
+  // Update edit-mode grid background position
+  room.style.setProperty('--gw', (TILE_W + GAP_X) + 'px');
+  room.style.setProperty('--gh', (TILE_H + GAP_Y) + 'px');
+  room.style.setProperty('--ox', offsetX + 'px');
+  room.style.setProperty('--oy', offsetY + 'px');
+  room.style.backgroundPosition = `${offsetX}px ${offsetY}px`;
+}
+
+function setupDrag(tile, offsetX, offsetY) {
+  let dragging = false, startX, startY, origLeft, origTop;
+  const ghost = document.getElementById('snapGhost');
+
+  tile.addEventListener('mousedown', e => {
+    if (!editMode) return;
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    origLeft = parseInt(tile.style.left);
+    origTop  = parseInt(tile.style.top);
+    tile.classList.add('dragging');
+    ghost.style.display = 'block';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const { w: gridW, h: gridH } = getGridSize();
+    let nx = origLeft + (e.clientX - startX);
+    let ny = origTop  + (e.clientY - startY);
+    nx = Math.max(0, Math.min(nx, gridW - TILE_W));
+    ny = Math.max(0, Math.min(ny, gridH - TILE_H));
+    tile.style.left = nx + 'px';
+    tile.style.top  = ny + 'px';
+
+    // Snap ghost (relative to room, not container)
+    let { col, row } = pixelToSlot(nx, ny);
+    col = Math.max(0, Math.min(col, config.cols - 1));
+    row = Math.max(0, Math.min(row, config.rows - 1));
+    const snap = slotToPixel(col, row);
+    ghost.style.left = (offsetX + snap.x) + 'px';
+    ghost.style.top  = (offsetY + snap.y) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    tile.classList.remove('dragging');
+    ghost.style.display = 'none';
+
+    const nx = parseInt(tile.style.left);
+    const ny = parseInt(tile.style.top);
+    let { col, row } = pixelToSlot(nx, ny);
+    col = Math.max(0, Math.min(col, config.cols - 1));
+    row = Math.max(0, Math.min(row, config.rows - 1));
+
+    const idx = parseInt(tile.dataset.idx);
+    const other = positions.findIndex((p, i) => i !== idx && p.col === col && p.row === row);
+    if (other !== -1) [positions[idx], positions[other]] = [positions[other], positions[idx]];
+    else positions[idx] = { col, row };
+    renderDesks();
+  });
+}
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.getElementById('room').classList.toggle('edit-mode', editMode);
+  document.getElementById('editBtn').classList.toggle('active', editMode);
+  document.getElementById('editBanner').style.display = editMode ? 'block' : 'none';
+}
+
+function changeVal(k, d) {
+  if (k === 'rows') configTemp.rows = Math.max(1, Math.min(8, configTemp.rows + d));
+  if (k === 'cols') configTemp.cols = Math.max(1, Math.min(8, configTemp.cols + d));
+  document.getElementById('rows-val').textContent = configTemp.rows;
+  document.getElementById('cols-val').textContent = configTemp.cols;
+  renderPreview();
+}
+function renderPreview() {
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  for (let r = 0; r < configTemp.rows; r++) {
+    const row = document.createElement('div'); row.className = 'preview-row';
+    for (let c = 0; c < configTemp.cols; c++) {
+      const cell = document.createElement('div'); cell.className = 'preview-cell'; row.appendChild(cell);
+    }
+    grid.appendChild(row);
+  }
+  const info = document.createElement('div'); info.className = 'preview-info';
+  info.textContent = `${configTemp.rows} × ${configTemp.cols} = ${configTemp.rows * configTemp.cols} Plätze · ${students.length} Schüler`;
+  grid.appendChild(info);
+}
+function openConfig() {
+  configTemp = { ...config };
+  document.getElementById('rows-val').textContent = configTemp.rows;
+  document.getElementById('cols-val').textContent = configTemp.cols;
+  renderPreview();
+  document.getElementById('configModal').classList.add('show');
+}
+function closeConfig() { document.getElementById('configModal').classList.remove('show'); }
+function applyConfig() { config = { ...configTemp }; initPositions(); renderDesks(); closeConfig(); }
+
+// Re-center on window resize
+window.addEventListener('resize', renderDesks);
+
+initPositions();
+renderDesks();
+</script>
+</body>
+</html>

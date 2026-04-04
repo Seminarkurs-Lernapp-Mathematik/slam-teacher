@@ -1,0 +1,259 @@
+<h2>Virtual Classroom — Student Card Design</h2>
+<p class="subtitle">What does a student "desk" look like in the grid?</p>
+
+<div class="cards">
+
+  <!-- Option A: Clean minimal card -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#090c14; border-radius:8px; padding:14px; font-family:system-ui,sans-serif;">
+      <div style="font-size:10px;color:#2563eb;font-weight:600;letter-spacing:1px;margin-bottom:10px;">KLASSENRAUM · 11a · 24 Schüler</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;">
+
+        <!-- Online + doing well -->
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:6px;padding:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 4px rgba(34,197,94,0.6);"></div>
+            <span style="font-size:8px;color:#555;">2 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">L. Bauer</div>
+          <div style="font-size:8px;color:#3b82f6;margin-top:2px;">Ableitungen</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:72%;height:100%;background:#22c55e;border-radius:1px;"></div>
+          </div>
+        </div>
+
+        <!-- Online + struggling -->
+        <div style="background:#0d1220;border:1px solid #7c2d12;border-radius:6px;padding:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#f97316;border-radius:50%;box-shadow:0 0 4px rgba(249,115,22,0.6);"></div>
+            <span style="font-size:8px;color:#555;">1 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">M. Schmidt</div>
+          <div style="font-size:8px;color:#3b82f6;margin-top:2px;">Integrieren</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:31%;height:100%;background:#ef4444;border-radius:1px;"></div>
+          </div>
+        </div>
+
+        <!-- Idle -->
+        <div style="background:#0d1220;border:1px solid #1e2a3a;border-radius:6px;padding:8px;opacity:0.7;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#f59e0b;border-radius:50%;"></div>
+            <span style="font-size:8px;color:#555;">12 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">T. Müller</div>
+          <div style="font-size:8px;color:#555;margin-top:2px;">Letztes Thema</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:55%;height:100%;background:#f59e0b;border-radius:1px;"></div>
+          </div>
+        </div>
+
+        <!-- Offline -->
+        <div style="background:#0a0d14;border:1px solid #1a1f2e;border-radius:6px;padding:8px;opacity:0.45;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#374151;border-radius:50%;"></div>
+            <span style="font-size:8px;color:#444;">2 Tage</span>
+          </div>
+          <div style="font-size:9px;color:#9ca3af;font-weight:600;">A. Weber</div>
+          <div style="font-size:8px;color:#444;margin-top:2px;">Offline</div>
+          <div style="height:2px;background:#1a1f2e;border-radius:1px;margin-top:5px;"></div>
+        </div>
+
+        <!-- More cards row 2 -->
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:6px;padding:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 4px rgba(34,197,94,0.6);"></div>
+            <span style="font-size:8px;color:#555;">4 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">S. Fischer</div>
+          <div style="font-size:8px;color:#3b82f6;margin-top:2px;">Vektoren</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:88%;height:100%;background:#22c55e;border-radius:1px;"></div>
+          </div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:6px;padding:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 4px rgba(34,197,94,0.6);"></div>
+            <span style="font-size:8px;color:#555;">1 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">K. Hoffmann</div>
+          <div style="font-size:8px;color:#3b82f6;margin-top:2px;">Ableitungen</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:61%;height:100%;background:#22c55e;border-radius:1px;"></div>
+          </div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #7c2d12;border-radius:6px;padding:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#f97316;border-radius:50%;box-shadow:0 0 4px rgba(249,115,22,0.6);"></div>
+            <span style="font-size:8px;color:#555;">3 min</span>
+          </div>
+          <div style="font-size:9px;color:#dbeafe;font-weight:600;">J. Wagner</div>
+          <div style="font-size:8px;color:#3b82f6;margin-top:2px;">Grenzwerte</div>
+          <div style="height:2px;background:#1e3a6e;border-radius:1px;margin-top:5px;">
+            <div style="width:28%;height:100%;background:#ef4444;border-radius:1px;"></div>
+          </div>
+        </div>
+        <div style="background:#0a0d14;border:1px solid #1a1f2e;border-radius:6px;padding:8px;opacity:0.45;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <div style="width:8px;height:8px;background:#374151;border-radius:50%;"></div>
+            <span style="font-size:8px;color:#444;">1 Woche</span>
+          </div>
+          <div style="font-size:9px;color:#9ca3af;font-weight:600;">P. Braun</div>
+          <div style="font-size:8px;color:#444;margin-top:2px;">Offline</div>
+          <div style="height:2px;background:#1a1f2e;border-radius:1px;margin-top:5px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Minimal Cards</h3>
+      <p>Clean, information-dense grid. Status dot + name + current topic + accuracy progress bar. At-a-glance status via color borders. Fits many students on screen.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Rich avatar cards -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#090c14; border-radius:8px; padding:14px; font-family:system-ui,sans-serif;">
+      <div style="font-size:10px;color:#2563eb;font-weight:600;letter-spacing:1px;margin-bottom:10px;">KLASSENRAUM · 11a · 24 Schüler</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+
+        <!-- Rich card: online good -->
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:8px;padding:10px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+            <div style="position:relative;width:28px;height:28px;flex-shrink:0;">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">LB</div>
+              <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#22c55e;border:1.5px solid #090c14;border-radius:50%;"></div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:#dbeafe;font-weight:600;">L. Bauer</div>
+              <div style="font-size:8px;color:#3b82f6;">Ableitungen</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-bottom:4px;">
+            <span>Genauigkeit</span><span style="color:#22c55e;font-weight:600;">72%</span>
+          </div>
+          <div style="height:3px;background:#1e3a6e;border-radius:2px;">
+            <div style="width:72%;height:100%;background:linear-gradient(90deg,#2563eb,#22c55e);border-radius:2px;"></div>
+          </div>
+          <div style="font-size:8px;color:#555;margin-top:5px;">7 / 10 Fragen · 2 min</div>
+        </div>
+
+        <!-- Rich card: struggling -->
+        <div style="background:#0d1220;border:1px solid #991b1b;border-radius:8px;padding:10px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+            <div style="position:relative;width:28px;height:28px;flex-shrink:0;">
+              <div style="width:28px;height:28px;background:linear-gradient(135deg,#991b1b,#dc2626);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">MS</div>
+              <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#f97316;border:1.5px solid #090c14;border-radius:50%;"></div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:#dbeafe;font-weight:600;">M. Schmidt</div>
+              <div style="font-size:8px;color:#ef4444;">⚠ Kämpft seit 15 min</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-bottom:4px;">
+            <span>Genauigkeit</span><span style="color:#ef4444;font-weight:600;">31%</span>
+          </div>
+          <div style="height:3px;background:#1e3a6e;border-radius:2px;">
+            <div style="width:31%;height:100%;background:#ef4444;border-radius:2px;"></div>
+          </div>
+          <div style="font-size:8px;color:#555;margin-top:5px;">3 / 10 Fragen · 1 min</div>
+        </div>
+
+        <!-- Rich card: idle -->
+        <div style="background:#0d1220;border:1px solid #1e2a3a;border-radius:8px;padding:10px;opacity:0.75;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
+            <div style="position:relative;width:28px;height:28px;flex-shrink:0;">
+              <div style="width:28px;height:28px;background:#1e2a3a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#64748b;font-weight:700;">TM</div>
+              <div style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#f59e0b;border:1.5px solid #090c14;border-radius:50%;"></div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:#9ca3af;font-weight:600;">T. Müller</div>
+              <div style="font-size:8px;color:#f59e0b;">Inaktiv seit 12 min</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;color:#64748b;margin-bottom:4px;">
+            <span>Genauigkeit</span><span style="color:#f59e0b;font-weight:600;">55%</span>
+          </div>
+          <div style="height:3px;background:#1e3a6e;border-radius:2px;">
+            <div style="width:55%;height:100%;background:#f59e0b;border-radius:2px;"></div>
+          </div>
+          <div style="font-size:8px;color:#555;margin-top:5px;">6 / 10 Fragen · 12 min</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Rich Avatar Cards</h3>
+      <p>Initials avatar with status dot. Shows accuracy %, questions progress, time active, and struggle alerts inline. More info per card — fewer students visible at once.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Status-grouped rows -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#090c14; border-radius:8px; padding:14px; font-family:system-ui,sans-serif;">
+      <div style="font-size:10px;color:#2563eb;font-weight:600;letter-spacing:1px;margin-bottom:10px;">KLASSENRAUM · 11a · 24 Schüler</div>
+
+      <!-- Alert banner -->
+      <div style="background:#1c0a00;border:1px solid #7c2d12;border-radius:5px;padding:6px 10px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <div style="width:6px;height:6px;background:#f97316;border-radius:50%;flex-shrink:0;"></div>
+        <span style="font-size:9px;color:#fb923c;">3 Schüler kämpfen seit über 15 Minuten mit "Ableitungen"</span>
+      </div>
+
+      <!-- Section: Active -->
+      <div style="font-size:8px;color:#22c55e;font-weight:600;letter-spacing:1px;margin-bottom:5px;">● AKTIV (14)</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:10px;">
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">LB</div>
+          <div style="font-size:7px;color:#22c55e;margin-top:1px;">72%</div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">SF</div>
+          <div style="font-size:7px;color:#22c55e;margin-top:1px;">88%</div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">KH</div>
+          <div style="font-size:7px;color:#22c55e;margin-top:1px;">61%</div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">PK</div>
+          <div style="font-size:7px;color:#22c55e;margin-top:1px;">79%</div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">AN</div>
+          <div style="font-size:7px;color:#22c55e;margin-top:1px;">65%</div>
+        </div>
+        <div style="background:#0d1220;border:1px solid #1e3a6e;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#dbeafe;font-weight:600;">+9</div>
+          <div style="font-size:7px;color:#555;margin-top:1px;">mehr</div>
+        </div>
+      </div>
+
+      <!-- Section: Struggling -->
+      <div style="font-size:8px;color:#f97316;font-weight:600;letter-spacing:1px;margin-bottom:5px;">⚠ KÄMPFT (3)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:10px;">
+        <div style="background:#1a0800;border:1px solid #7c2d12;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#fbbf24;font-weight:600;">MS</div>
+          <div style="font-size:7px;color:#ef4444;margin-top:1px;">31%</div>
+        </div>
+        <div style="background:#1a0800;border:1px solid #7c2d12;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#fbbf24;font-weight:600;">JW</div>
+          <div style="font-size:7px;color:#ef4444;margin-top:1px;">28%</div>
+        </div>
+        <div style="background:#1a0800;border:1px solid #7c2d12;border-radius:5px;padding:5px;text-align:center;">
+          <div style="font-size:8px;color:#fbbf24;font-weight:600;">RL</div>
+          <div style="font-size:7px;color:#ef4444;margin-top:1px;">22%</div>
+        </div>
+      </div>
+
+      <!-- Section: Offline -->
+      <div style="font-size:8px;color:#374151;font-weight:600;letter-spacing:1px;margin-bottom:4px;">○ OFFLINE (7)</div>
+      <div style="font-size:8px;color:#374151;">AW · PB · GN · ... +4 weitere</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Grouped by Status</h3>
+      <p>Students sorted into sections: Active, Struggling, Offline. Alert banner at top. Compact initials chips. Teacher's eye goes straight to problems — no scanning required.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click a card design to select, then let me know in the terminal.</p>
