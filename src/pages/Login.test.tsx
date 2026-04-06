@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const { mockSignInWithEmailAndPassword } = vi.hoisted(() => ({
@@ -28,6 +28,26 @@ describe('Login', () => {
     await userEvent.type(screen.getByLabelText('E-Mail'), '  teacher@mvl-gym.de  ')
     await userEvent.type(screen.getByLabelText('Passwort'), 'secret')
     await userEvent.click(screen.getByRole('button', { name: /anmelden/i }))
+
+    await waitFor(() =>
+      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+        {},
+        'teacher@mvl-gym.de',
+        'secret'
+      )
+    )
+  })
+
+  it('submits the current form field values for autofilled credentials', async () => {
+    render(<Login />)
+
+    const emailInput = screen.getByLabelText('E-Mail') as HTMLInputElement
+    const passwordInput = screen.getByLabelText('Passwort') as HTMLInputElement
+
+    emailInput.value = 'teacher@mvl-gym.de'
+    passwordInput.value = 'secret'
+
+    fireEvent.submit(screen.getByRole('button', { name: /anmelden/i }).closest('form')!)
 
     await waitFor(() =>
       expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(

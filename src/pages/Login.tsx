@@ -6,16 +6,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const normalizedEmail = email.trim()
+    const formData = new FormData(e.currentTarget)
+    const normalizedEmail = String(formData.get('email') ?? '').trim()
+    const password = String(formData.get('password') ?? '')
     try {
       await signInWithEmailAndPassword(auth, normalizedEmail, password)
     } catch (err: unknown) {
@@ -35,10 +35,12 @@ export function Login() {
             <Label htmlFor="email">E-Mail</Label>
             <Input
               id="email"
+              name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="name@mvl-gym.de"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
               required
             />
           </div>
@@ -46,9 +48,9 @@ export function Login() {
             <Label htmlFor="password">Passwort</Label>
             <Input
               id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
             />
           </div>
