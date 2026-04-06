@@ -15,8 +15,9 @@ export function Login() {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    const normalizedEmail = email.trim()
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, normalizedEmail, password)
     } catch (err: unknown) {
       setError((err as Error).message ?? 'Anmeldung fehlgeschlagen')
     } finally {
