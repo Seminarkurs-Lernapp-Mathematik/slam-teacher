@@ -29,8 +29,12 @@ describe('apiFetch', () => {
       new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 })
     ))
 
-    const { apiFetch } = await import('./client')
-    await expect(apiFetch('/api/restricted')).rejects.toThrow('Forbidden')
+    const { apiFetch, ApiError } = await import('./client')
+    await expect(apiFetch('/api/restricted')).rejects.toMatchObject({
+      message: 'Forbidden',
+      status: 403,
+    })
+    await expect(apiFetch('/api/restricted')).rejects.toBeInstanceOf(ApiError)
   })
 
   it('returns undefined for 204 No Content responses', async () => {

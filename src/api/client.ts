@@ -2,6 +2,16 @@ import { auth } from '../firebase'
 
 const API_URL = import.meta.env.VITE_API_URL as string
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
 export async function apiFetch<T = unknown>(path: string, options?: RequestInit): Promise<T> {
   const user = auth.currentUser
   if (!user) throw new Error('Not authenticated')
@@ -21,7 +31,7 @@ export async function apiFetch<T = unknown>(path: string, options?: RequestInit)
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({})) as { error?: string }
-    throw new Error(body.error ?? `HTTP ${res.status}`)
+    throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status)
   }
 
   return res.json() as Promise<T>

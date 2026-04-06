@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from './firebase'
 import { useStore } from './store'
+import { ApiError } from './api/client'
 import { useTeacher } from './api/hooks'
 import { Layout } from './components/Layout'
 import { Login } from './pages/Login'
@@ -40,7 +41,7 @@ function AuthenticatedApp() {
   // 404 from /api/teacher/me means first login → onboarding
   // Other errors (500, network failure) show an error message instead
   if (isError) {
-    if (error instanceof Error && error.message.includes('404')) {
+    if (error instanceof ApiError && error.status === 404) {
       return <Onboarding />
     }
     return (
