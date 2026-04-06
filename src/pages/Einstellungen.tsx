@@ -70,8 +70,9 @@ export function Einstellungen() {
       try {
         const result = await inviteStudent.mutateAsync({ email })
         uids.push(result.uid)
-      } catch {
-        // skip
+      } catch (err: unknown) {
+        setInviteStatus(`Fehler bei ${email}: ${(err as Error).message}`)
+        return
       }
     }
     if (uids.length > 0) {
