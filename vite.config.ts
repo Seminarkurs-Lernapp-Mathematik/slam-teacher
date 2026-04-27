@@ -10,6 +10,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks - separate large dependencies
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-ui': ['zustand', 'lucide-react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
   test: {
     globals: true,
     environment: 'jsdom',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from './firebase'
@@ -7,13 +7,23 @@ import { ApiError } from './api/client'
 import { useTeacher } from './api/hooks'
 import { Layout } from './components/Layout'
 import { Login } from './pages/Login'
-import { Onboarding } from './pages/Onboarding'
-import { Klassenraum } from './pages/Klassenraum'
-import { LiveMonitor } from './pages/LiveMonitor'
-import { Analytik } from './pages/Analytik'
-import { Schueler } from './pages/Schueler'
-import { Lernziele } from './pages/Lernziele'
-import { Einstellungen } from './pages/Einstellungen'
+
+// Lazy load heavy pages for code splitting
+const Onboarding = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })))
+const Klassenraum = lazy(() => import('./pages/Klassenraum').then(m => ({ default: m.Klassenraum })))
+const LiveMonitor = lazy(() => import('./pages/LiveMonitor').then(m => ({ default: m.LiveMonitor })))
+const Analytik = lazy(() => import('./pages/Analytik').then(m => ({ default: m.Analytik })))
+const Schueler = lazy(() => import('./pages/Schueler').then(m => ({ default: m.Schueler })))
+const Lernziele = lazy(() => import('./pages/Lernziele').then(m => ({ default: m.Lernziele })))
+const Einstellungen = lazy(() => import('./pages/Einstellungen').then(m => ({ default: m.Einstellungen })))
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <p className="text-slate-400">Laden…</p>
+    </div>
+  )
+}
 
 function AuthenticatedApp() {
   const { data: teacher, isLoading, isError, error } = useTeacher()
@@ -31,18 +41,18 @@ function AuthenticatedApp() {
   }, [teacher, setTheme, setSelectedClassId])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
-        <p className="text-slate-400">Laden…</p>
-      </div>
-    )
+    return <LoadingFallback />
   }
 
   // 404 from /api/teacher/me means first login → onboarding
   // Other errors (500, network failure) show an error message instead
   if (isError) {
     if (error instanceof ApiError && error.status === 404) {
-      return <Onboarding />
+      return (
+        <Suspense fallback={<LoadingFallback />}>
+          <Onboarding />
+        </Suspense>
+      )
     }
     return (
       <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
@@ -52,17 +62,19 @@ function AuthenticatedApp() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Klassenraum />} />
-        <Route path="monitor" element={<LiveMonitor />} />
-        <Route path="analytik" element={<Analytik />} />
-        <Route path="schueler" element={<Schueler />} />
-        <Route path="lernziele" element={<Lernziele />} />
-        <Route path="einstellungen" element={<Einstellungen />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Klassenraum />} />
+          <Route path="monitor" element={<LiveMonitor />} />
+          <Route path="analytik" element={<Analytik />} />
+          <Route path="schueler" element={<Schueler />} />
+          <Route path="lernziele" element={<Lernziele />} />
+          <Route path="einstellungen" element={<Einstellungen />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
 
@@ -75,11 +87,7 @@ function FirebaseAuthGuard() {
   }, [])
 
   if (user === 'loading') {
-    return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
-        <p className="text-slate-400">Laden…</p>
-      </div>
-    )
+    return <LoadingFallback />
   }
 
   if (!user) return <Login />
