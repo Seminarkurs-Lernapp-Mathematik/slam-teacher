@@ -18,8 +18,16 @@ export function Login() {
     const password = String(formData.get('password') ?? '')
     try {
       await signInWithEmailAndPassword(auth, normalizedEmail, password)
-    } catch (err: unknown) {
-      setError((err as Error).message ?? 'Anmeldung fehlgeschlagen')
+    } catch (err: any) {
+      let errorMessage = 'Anmeldung fehlgeschlagen'
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        errorMessage = 'E-Mail oder Passwort ist falsch.'
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Zu viele Fehlversuche. Bitte später erneut versuchen.'
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
