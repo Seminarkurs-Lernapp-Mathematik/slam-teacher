@@ -34,10 +34,10 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
-      <div className="w-full max-w-sm p-8 bg-[#101828] rounded-xl border border-slate-800">
-        <h1 className="text-2xl font-bold text-white mb-6">Learn Smart</h1>
-        <p className="text-slate-400 mb-6 text-sm">Anmeldung für Lehrkräfte</p>
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="w-full max-w-sm p-8 bg-card rounded-2xl border border-border shadow-lg">
+        <h1 className="text-2xl font-bold text-card-foreground mb-6">Learn Smart</h1>
+        <p className="text-muted-foreground mb-6 text-sm">Anmeldung für Lehrkräfte</p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">E-Mail</Label>

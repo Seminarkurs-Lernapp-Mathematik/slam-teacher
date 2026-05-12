@@ -166,10 +166,11 @@ export function ClassroomGrid({
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="bg-[#101828] rounded-xl border border-slate-800 p-6 relative">
+      <div className="bg-card rounded-2xl border border-border p-6 relative shadow-md">
         {/* Tafel */}
-        <div className="w-2/3 mx-auto h-8 bg-[#2563EB]/20 border border-[#2563EB]/40 rounded mb-8 flex items-center justify-center">
-          <span className="text-blue-400 text-xs tracking-widest uppercase">Tafel</span>
+        <div className="w-2/3 mx-auto h-8 bg-muted/50 border border-border/50 rounded-lg mb-8 flex items-center justify-center relative overflow-hidden shadow-inner">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+          <span className="text-muted-foreground font-medium text-xs tracking-widest uppercase">Tafel</span>
         </div>
 
         {editMode && (

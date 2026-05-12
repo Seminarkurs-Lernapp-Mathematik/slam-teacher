@@ -42,9 +42,9 @@ export function StudentPanel({ studentId, onClose }: Props) {
 
   return (
     // Sliding panel from right
-    <div className="fixed inset-y-0 right-0 w-[480px] bg-[#101828] border-l border-slate-800 shadow-2xl z-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-y-0 right-0 w-[480px] bg-card/95 backdrop-blur-xl border-l border-border shadow-2xl z-50 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-start justify-between p-6 border-b border-slate-800">
+      <div className="flex items-start justify-between p-6 border-b border-border bg-muted/30">
         <div>
           <h2 className="text-xl font-semibold text-white">
             {student?.displayName ?? studentId}
@@ -93,9 +93,9 @@ export function StudentPanel({ studentId, onClose }: Props) {
               {topicAccuracy.map(({ topic, pct }) => (
                 <div key={topic} className="flex items-center gap-3">
                   <span className="w-36 flex-none text-xs text-slate-400 truncate">{topic}</span>
-                  <div className="flex-1 h-3 bg-slate-800 rounded overflow-hidden">
+                  <div className="flex-1 h-3 bg-secondary rounded-full overflow-hidden shadow-inner">
                     <div
-                      className={`h-full rounded ${pct >= 60 ? 'bg-green-500' : 'bg-red-500'}`}
+                      className={`h-full rounded-full transition-all duration-500 ${pct >= 60 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>

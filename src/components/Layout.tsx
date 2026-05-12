@@ -12,11 +12,11 @@ const NAV_ITEMS = [
 
 export function Layout() {
   return (
-    <div className="flex min-h-screen bg-[#0d1117]">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-56 flex-none bg-[#101828] border-r border-slate-800 flex flex-col">
+      <aside className="w-56 flex-none bg-sidebar border-r border-sidebar-border flex flex-col">
         {/* Class selector */}
-        <div className="p-4 border-b border-slate-800">
+        <div className="p-4 border-b border-sidebar-border">
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Klasse</p>
           <ClassSelector />
         </div>
@@ -29,10 +29,10 @@ export function Layout() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                `flex items-center gap-3 px-4 py-2.5 text-sm transition-colors rounded-md mx-2 mb-1 ${
                   isActive
-                    ? 'text-white bg-blue-600/20 border-r-2 border-blue-500'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    ? 'text-sidebar-accent-foreground bg-sidebar-accent font-medium'
+                    : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
                 }`
               }
             >

@@ -14,7 +14,7 @@ export function ClassSelector() {
       role="combobox"
       value={selectedClassId ?? ''}
       onChange={(e) => setSelectedClassId(e.target.value)}
-      className="w-full bg-[#0d1117] text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+      className="w-full bg-background text-foreground border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-shadow"
     >
       {classes.map((cls) => (
         <option key={cls.id} value={cls.id}>

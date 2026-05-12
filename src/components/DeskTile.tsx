@@ -60,9 +60,9 @@ export function DeskTile({ student, onClick, beamerName, extraContent }: Props) 
     <div
       data-testid="desk-tile"
       onClick={onClick}
-      className={`w-[108px] h-[66px] rounded-[8px] border-2 ${cfg.borderClass} ${cfg.glowClass} ${
+      className={`w-[108px] h-[66px] rounded-xl border-2 ${cfg.borderClass} ${cfg.glowClass} ${
         student.status === 'offline' ? 'opacity-50' : ''
-      } bg-[#101828] cursor-pointer flex flex-col justify-center items-center p-1 gap-0.5 select-none relative overflow-visible`}
+      } bg-card hover:bg-accent/50 transition-colors shadow-sm cursor-pointer flex flex-col justify-center items-center p-1 gap-0.5 select-none relative overflow-visible`}
     >
       <span className="text-white text-xs font-medium truncate max-w-full px-1 leading-tight">
         {name}
